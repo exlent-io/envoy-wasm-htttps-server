@@ -1,0 +1,28 @@
+name: sni_config
+spec:
+  listeners:
+    - name: listener_0
+      address: 0.0.0.0
+      port: 9000
+      sni:
+        - server_names:
+            - "*.example.com"
+            - example.com
+          secret_names:
+            - example_com
+          routes:
+            - name: echo_route
+              prefix: /
+              clusters:
+                - echo
+  clusters:
+    - name: echo
+      endpoints:
+        - address: 127.0.0.1
+          port: 9101
+        - address: 127.0.0.1
+          port: 9102
+  secrets:
+    - name: example_com
+      private_key_file: "certs/envoy-proxy-server.key"
+      certificate_chain_file: "certs/envoy-proxy-server.crt"
