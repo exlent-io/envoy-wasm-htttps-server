@@ -41,7 +41,7 @@ func main() {
 	flag.Parse()
 
 	// Create a cache
-	cache := cache.NewSnapshotCache(false, cache.IDHash{}, l)
+	cache := cache.NewSnapshotCache(true, cache.IDHash{}, l)
 
 	// Create a processor
 	proc := processor.NewProcessor(
