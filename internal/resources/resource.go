@@ -40,7 +40,7 @@ func MakeCluster(name string, eps []Endpoint) *cluster.Cluster {
 	return &cluster.Cluster{
 		Name:                 name,
 		ConnectTimeout:       ptypes.DurationProto(2 * time.Second),
-		ClusterDiscoveryType: &cluster.Cluster_Type{Type: cluster.Cluster_LOGICAL_DNS},
+		ClusterDiscoveryType: &cluster.Cluster_Type{Type: cluster.Cluster_STRICT_DNS},
 		DnsLookupFamily:      cluster.Cluster_V4_ONLY,
 		LbPolicy:             cluster.Cluster_ROUND_ROBIN,
 		LoadAssignment: &endpoint.ClusterLoadAssignment{
