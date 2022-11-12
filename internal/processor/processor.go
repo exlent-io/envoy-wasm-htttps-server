@@ -24,7 +24,6 @@ type Processor struct {
 
 	logrus.FieldLogger
 
-	// xdsCache xdscache.XDSCache
 	adsCache adscache.ADSCache
 }
 
@@ -34,14 +33,6 @@ func NewProcessor(cache cache.SnapshotCache, nodeID string, log logrus.FieldLogg
 		nodeID:          nodeID,
 		snapshotVersion: rand.Int63n(1000),
 		FieldLogger:     log,
-		//xdsCache: xdscache.XDSCache{
-		//	Listeners:    make(map[string]resources.Listener),
-		//	Clusters:     make(map[string]resources.Cluster),
-		//	Routes:       make(map[string]resources.Route),
-		//	Endpoints:    make(map[string]resources.Endpoint),
-		//	TLSListeners: make(map[string]resources.TLSListener),
-		//	Secrets:      make(map[string]resources.Secret),
-		//},
 		adsCache: adscache.ADSCache{
 			Listeners: make(map[string]resources.Listener),
 			Clusters:  make(map[string]resources.Cluster),
