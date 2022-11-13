@@ -25,9 +25,11 @@ type Processor struct {
 	logrus.FieldLogger
 
 	adsCache adscache.ADSCache
+
+	configFilename string
 }
 
-func NewProcessor(cache cache.SnapshotCache, nodeID string, log logrus.FieldLogger) *Processor {
+func NewProcessor(cache cache.SnapshotCache, nodeID string, log logrus.FieldLogger, config string) *Processor {
 	return &Processor{
 		cache:           cache,
 		nodeID:          nodeID,
@@ -38,6 +40,7 @@ func NewProcessor(cache cache.SnapshotCache, nodeID string, log logrus.FieldLogg
 			Clusters:  make(map[string]resources.Cluster),
 			Secrets:   make(map[string]resources.Secret),
 		},
+		configFilename: config,
 	}
 }
 
@@ -59,7 +62,7 @@ func (p *Processor) newSnapshotVersion() string {
 func (p *Processor) ProcessFile(file watcher.NotifyMessage) {
 
 	// Parse file into object
-	envoyConfig, err := parseYaml(file.FilePath)
+	envoyConfig, err := parseYaml(p.configFilename)
 	if err != nil {
 		p.Errorf("error parsing yaml file: %+v", err)
 		return

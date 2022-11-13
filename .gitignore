@@ -20,3 +20,5 @@ examples/dyplomat/dyplomat
 certs/*.csr
 certs/*.key
 certs/*.crt
+certs/*.srl
+version.txt

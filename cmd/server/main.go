@@ -15,10 +15,11 @@ import (
 var (
 	l log.FieldLogger
 
-	watchDirectoryFileName string
-	port                   uint
-	basePort               uint
-	mode                   string
+	configFileName       string
+	watchVersionFileName string
+	port                 uint
+	basePort             uint
+	mode                 string
 
 	nodeID string
 )
@@ -28,13 +29,16 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 
 	// The port that this xDS server listens on
-	flag.UintVar(&port, "port", 9002, "xDS management server port")
+	flag.UintVar(&port, "port", 18000, "xDS management server port")
 
 	// Tell Envoy to use this Node ID
 	flag.StringVar(&nodeID, "nodeID", "test-id", "Node ID")
 
-	// Define the directory to watch for Envoy configuration files
-	flag.StringVar(&watchDirectoryFileName, "watchDirectoryFileName", "config/config.yaml", "full path to directory to watch for files")
+	// Define the directory to store management server configuration
+	flag.StringVar(&configFileName, "configFileName", "config/config.yaml", "Config File Path")
+
+	// Define the directory to watch for VERSION file
+	flag.StringVar(&watchVersionFileName, "watchVersionFileName", "version.txt", "The file used to notify the server that the config should be reload")
 }
 
 func main() {
@@ -45,12 +49,12 @@ func main() {
 
 	// Create a processor
 	proc := processor.NewProcessor(
-		cache, nodeID, log.WithField("context", "processor"))
+		cache, nodeID, log.WithField("context", "processor"), configFileName)
 
 	// Create initial snapshot from file
 	proc.ProcessFile(watcher.NotifyMessage{
 		Operation: watcher.Create,
-		FilePath:  watchDirectoryFileName,
+		FilePath:  watchVersionFileName,
 	})
 
 	// Notify channel for file system events
@@ -58,7 +62,8 @@ func main() {
 
 	go func() {
 		// Watch for file changes
-		watcher.Watch(watchDirectoryFileName, notifyCh)
+		// watcher.Watch(watchDirectoryFileName, notifyCh)
+		watcher.Watch(watchVersionFileName, notifyCh)
 	}()
 
 	go func() {

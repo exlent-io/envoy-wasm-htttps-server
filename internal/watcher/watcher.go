@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"log"
-	"path/filepath"
 )
 
 type OperationType int
@@ -48,13 +47,13 @@ func Watch(directory string, notifyCh chan<- NotifyMessage) {
 						FilePath:  event.Name,
 					}
 				} else if event.Op&fsnotify.Remove == fsnotify.Remove {
+					err = watcher.Add(directory)
+					if err != nil {
+						log.Fatal(err)
+					}
 					notifyCh <- NotifyMessage{
 						Operation: Remove,
 						FilePath:  event.Name,
-					}
-					err = watcher.Add(filepath.Dir(directory))
-					if err != nil {
-						log.Fatal(err)
 					}
 				}
 
@@ -67,7 +66,7 @@ func Watch(directory string, notifyCh chan<- NotifyMessage) {
 		}
 	}()
 
-	err = watcher.Add(filepath.Dir(directory))
+	err = watcher.Add(directory)
 	if err != nil {
 		log.Fatal(err)
 	}
