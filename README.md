@@ -1,4 +1,5 @@
 # Envoy Wasm Https Server
+This project is based on reference [stevesloka/envoy-xds-server](https://github.com/stevesloka/envoy-xds-server), which is modified to support TLS and WASM functionality.
 
 ## Sample
 
