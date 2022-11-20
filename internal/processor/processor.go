@@ -15,13 +15,16 @@
 package processor
 
 import (
-	"github.com/exlent-io/envoy-wasm-htttps-server/internal/resources"
+	"context"
 	"math"
 	"math/rand"
 	"os"
 	"strconv"
 
+	"github.com/exlent-io/envoy-wasm-htttps-server/internal/resources"
+
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
+	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	"github.com/exlent-io/envoy-wasm-htttps-server/internal/adscache"
@@ -73,7 +76,7 @@ func (p *Processor) newSnapshotVersion() string {
 }
 
 // ProcessFile takes a file and generates an xDS snapshot
-func (p *Processor) ProcessFile(file watcher.NotifyMessage) {
+func (p *Processor) ProcessFile(ctx context.Context, file watcher.NotifyMessage) {
 
 	// Parse file into object
 	envoyConfig, err := parseYaml(p.configFilename)
@@ -144,14 +147,16 @@ func (p *Processor) ProcessFile(file watcher.NotifyMessage) {
 	}
 
 	// Create the snapshot that we'll serve to Envoy
-	snapshot := cache.NewSnapshot(
-		p.newSnapshotVersion(),        // version
-		[]types.Resource{},            // endpoints
-		p.adsCache.ClusterContents(),  // clusters
-		[]types.Resource{},            // routes
-		p.adsCache.ListenerContents(), // listeners
-		[]types.Resource{},            // runtimes
-		p.adsCache.SecretContents(),   // secrets
+	snapshot, err := cache.NewSnapshot(
+		p.newSnapshotVersion(), // version
+		map[resource.Type][]types.Resource{
+			resource.ClusterType:  p.adsCache.ClusterContents(),
+			resource.ListenerType: p.adsCache.ListenerContents(),
+			resource.SecretType:   p.adsCache.SecretContents(),
+			// resource.EndpointType: []types.Resource{},
+			// resource.RouteType: []types.Resource{},
+			// resource.RuntimeType: []types.Resource{},
+		},
 	)
 
 	if err := snapshot.Consistent(); err != nil {
@@ -161,7 +166,7 @@ func (p *Processor) ProcessFile(file watcher.NotifyMessage) {
 	p.Debugf("will serve snapshot %+v", snapshot)
 
 	// Add the snapshot to the cache
-	if err := p.cache.SetSnapshot(p.nodeID, snapshot); err != nil {
+	if err := p.cache.SetSnapshot(ctx, p.nodeID, snapshot); err != nil {
 		p.Errorf("snapshot error %q for %+v", err, snapshot)
 		os.Exit(1)
 	}

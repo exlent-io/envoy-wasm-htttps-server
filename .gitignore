@@ -22,3 +22,4 @@ certs/*.key
 certs/*.crt
 certs/*.srl
 version.txt
+server

@@ -11,34 +11,41 @@ spec:
           secret_names:
             - example_com
           routes:
-            - name: echo_route
+            - name: httpbin_route
               prefix: /
               clusters:
-                - echo
-    - name: listener_1
-      address: 0.0.0.0
-      port: 8081
-      sni:
-        - server_names:
-            - "test.example.com"
-          secret_names:
-            - example_com
-          routes:
-            - name: test_route
-              prefix: /
-              clusters:
-                - test
+                - httpbin
+    # - name: listener_1
+    #   address: 0.0.0.0
+    #   port: 8081
+    #   sni:
+    #     - server_names:
+    #         - "test.example.com"
+    #       secret_names:
+    #         - example_com
+    #       routes:
+    #         - name: test_route
+    #           prefix: /
+    #           clusters:
+    #             - test
   clusters:
-    - name: echo
-      endpoints:
-        - address: 127.0.0.1
-          port: 9101
-        - address: 127.0.0.1
-          port: 9102
-    - name: test
-      endpoints:
-        - address: 127.0.0.1
-          port: 9100
+    - name: httpbin
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      dns_lookup_family: V4_ONLY
+      hosts:
+        - socket_address:
+            address: httpbin.org
+            port_value: 80
+            ipv4_compat: true
+    # - name: test
+    #   endpoints:
+    #     - address: 127.0.0.1
+    #       port: 9100
+    #     - address: 127.0.0.1
+    #       port: 9101
+
   secrets:
     - name: example_com
       private_key_file: "certs/envoy-proxy-server.key"

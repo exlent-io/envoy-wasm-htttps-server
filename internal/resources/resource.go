@@ -15,17 +15,20 @@
 package resources
 
 import (
+	"log"
+	"time"
+
 	cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	endpoint "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	route "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
+	router "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/router/v3"
+
 	hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	auth "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/ptypes"
-	"log"
-	"time"
 )
 
 func MakeCluster(name string, eps []Endpoint) *cluster.Cluster {
@@ -86,6 +89,10 @@ func MakeListener(name, address string, port uint32, rts []Route, snis []SNI) *l
 				Routes:  makeRoutes(sni.Routes),
 			}},
 		}
+		routerConfig, err := ptypes.MarshalAny(&router.Router{})
+		if err != nil {
+			log.Fatal(err)
+		}
 		manager := &hcm.HttpConnectionManager{
 			CodecType:  hcm.HttpConnectionManager_AUTO,
 			StatPrefix: "ingress_http",
@@ -94,6 +101,9 @@ func MakeListener(name, address string, port uint32, rts []Route, snis []SNI) *l
 			},
 			HttpFilters: []*hcm.HttpFilter{{
 				Name: wellknown.Router,
+				ConfigType: &hcm.HttpFilter_TypedConfig{
+					TypedConfig: routerConfig,
+				},
 			}},
 		}
 		pbst, err := ptypes.MarshalAny(manager)

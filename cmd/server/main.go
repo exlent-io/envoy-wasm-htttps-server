@@ -66,10 +66,14 @@ func main() {
 		cache, nodeID, log.WithField("context", "processor"), configFileName)
 
 	// Create initial snapshot from file
-	proc.ProcessFile(watcher.NotifyMessage{
-		Operation: watcher.Create,
-		FilePath:  watchVersionFileName,
-	})
+	ctx := context.Background()
+	proc.ProcessFile(
+		ctx,
+		watcher.NotifyMessage{
+			Operation: watcher.Create,
+			FilePath:  watchVersionFileName,
+		},
+	)
 
 	// Notify channel for file system events
 	notifyCh := make(chan watcher.NotifyMessage)
@@ -91,7 +95,7 @@ func main() {
 		select {
 		case msg := <-notifyCh:
 			log.Printf("receive msg: %+v", msg)
-			proc.ProcessFile(msg)
+			proc.ProcessFile(ctx, msg)
 		}
 	}
 }
