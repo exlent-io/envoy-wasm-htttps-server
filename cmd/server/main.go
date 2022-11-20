@@ -66,9 +66,8 @@ func main() {
 		cache, nodeID, log.WithField("context", "processor"), configFileName)
 
 	// Create initial snapshot from file
-	ctx := context.Background()
 	proc.ProcessFile(
-		ctx,
+		context.Background(),
 		watcher.NotifyMessage{
 			Operation: watcher.Create,
 			FilePath:  watchVersionFileName,
@@ -95,7 +94,7 @@ func main() {
 		select {
 		case msg := <-notifyCh:
 			log.Printf("receive msg: %+v", msg)
-			proc.ProcessFile(ctx, msg)
+			proc.ProcessFile(context.Background(), msg)
 		}
 	}
 }
