@@ -16,7 +16,9 @@ info: The currently active `rustc` version is `rustc 1.65.0 (897e37553 2022-11-0
 ```
 
 ## Refs
-https://content.red-badger.com/resources/extending-istio-with-rust-and-webassembly
+[rust wasm setup](https://content.red-badger.com/resources/extending-istio-with-rust-and-webassembly)  
+[enwoy/wasm threading model](https://tetrate.io/blog/wasm-modules-and-envoy-extensibility-explained-part-1/)  
+[proxy-wasm threading model spec](https://github.com/proxy-wasm/spec/blob/master/docs/WebAssembly-in-Envoy.md#virtual-machines)  
 
 ## Sample
 
